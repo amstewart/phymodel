@@ -1432,24 +1432,30 @@ void ath_tx_aggr_stop(struct ath_softc *sc, struct ieee80211_sta *sta, u16 tid)
 	ath_txq_unlock_complete(sc, txq);
 }
 
-void ath_tx_aggr_sleep(struct ieee80211_sta *sta, struct ath_softc *sc,
+void ath_tx_aggr_sleep(struct ieee80211_sta *sta, struct ath_softc *sc, 
 		       struct ath_node *an)
+               //ieee80211 is the station
+               //ath_nod is
+               //sof
 {
-	struct ath_atx_tid *tid;
-	struct ath_atx_ac *ac;
-	struct ath_txq *txq;
+    //atx is a list of tranmissions being delievered the device
+    //txq is being served by the device actively
+	struct ath_atx_tid *tid; //tid is a list of tranmissions
+	struct ath_atx_ac *ac; //the current atx tranmission
+	struct ath_txq *txq; //the actual tranmission that are being served
 	bool buffered;
 	int tidno;
 
+    //runs through the atx list and
 	for (tidno = 0, tid = &an->tid[tidno];
 	     tidno < IEEE80211_NUM_TIDS; tidno++, tid++) {
 
-		ac = tid->ac;
-		txq = ac->txq;
+		ac = tid->ac; //set as current atx transmission
+		txq = ac->txq; //sets the txq queue from the current atx transmission
 
-		ath_txq_lock(sc, txq);
+		ath_txq_lock(sc, txq);//locks the queue
 
-		if (!tid->sched) {
+		if (!tid->sched) {//if this is not scheduled unlock and exit the function
 			ath_txq_unlock(sc, txq);
 			continue;
 		}
@@ -1457,7 +1463,7 @@ void ath_tx_aggr_sleep(struct ieee80211_sta *sta, struct ath_softc *sc,
 		buffered = ath_tid_has_buffered(tid);
 
 		tid->sched = false;
-		list_del(&tid->list);
+		list_del(&tid->list);//
 
 		if (ac->sched) {
 			ac->sched = false;
