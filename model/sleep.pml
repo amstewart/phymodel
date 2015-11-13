@@ -2,30 +2,35 @@
 
  */
 
-mtype = { locked, unlocked
-    sched, sleep, deleted};
+#include "lock.h"
 
-show mtype tid_state = sched; //can be sched or sleep (!sched) or deleted
-show mtype ac_state = sched; //can be sched or sleep (!sched) or deleted
-show mtype txq_state = sched; //can be locked or unlocked
+bit lock, sched, delete;
 
 active proctype sleep_tid()	/* can run at any time */
 {
-    //locks txq 
-    atomic {txq_state == unlocked -> txq_state = locked}
+    do 
+    ::
+s0:   /*** STATE 0 ***/
+        
+        if :: sched == 0 -> goto sink;
+        :: else goto s1;
+        fi
 
-    //sleep check, if sleeping, break out
-    if 
-    :: tid_state == sleep  -> atomic (txq_state = unlocked); break;
-    fi
+s1:
+        spin_lock(lock)
+s2:
 
 
-    /* critcal section and deletion */
-    tid = sleep;
+s3:
 
-    atomic {txq_state = unlocked }
+        sched = 0;
+        delete = 1;
+
+s4:
+        spin_unlock(lock);
+
+
+sink: 
+    od;
 
 }
-
-//lock txq
-
