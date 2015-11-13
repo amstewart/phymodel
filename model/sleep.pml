@@ -1,50 +1,31 @@
 /*
- * Models the Pathfinder scheduling algorithm and explains the
- * cause of the recurring reset problem during the mission on Mars
- *
- * there is a high priority process, that consumes
- * data produced by a low priority process.
- * data consumption and production happens under
- * the protection of a mutex lock
- * the mutex lock conflicts with the scheduling priorities
- * which can deadlock the system if high() starts up
- * while low() has the lock set
- * there are 12 reachable states in the full (non-reduced)
- * state space -- two of which are deadlock states
- * partial order reduction cannot be used here because of
- * the 'provided' clause that models the process priorities
+
  */
 
-mtype = { free, busy, idle, waiting, running };
+mtype = { locked, unlocked
+    sched, sleep, deleted};
 
-show mtype h_state = idle;
-show mtype l_state = idle;
-show mtype mutex = free;
+show mtype tid_state = sched; //can be sched or sleep (!sched) or deleted
+show mtype ac_state = sched; //can be sched or sleep (!sched) or deleted
+show mtype txq_state = sched; //can be locked or unlocked
 
-active proctype high()	/* can run at any time */
+active proctype sleep_tid()	/* can run at any time */
 {
-end:	do
-	:: h_state = waiting;
-		atomic { mutex == free -> mutex = busy };
-		h_state = running;
+    //locks txq 
+    atomic {txq_state == unlocked -> txq_state = locked}
 
-		/* critical section - consume data */
+    //sleep check, if sleeping, break out
+    if 
+    :: tid_state == sleep  -> atomic (txq_state = unlocked); break;
+    fi
 
-		atomic { h_state = idle; mutex = free }
-	od
+
+    /* critcal section and deletion */
+    tid = sleep;
+
+    atomic {txq_state = unlocked }
+
 }
 
-active proctype low() provided (h_state == idle) /* scheduling rule */
-{
-end:	do
-	:: l_state = waiting;
-		atomic { mutex == free -> mutex = busy};
-		l_state = running;
-
-		/* critical section - produce data */
-
-		atomic { l_state = idle; mutex = free }
-	od
-
-}
+//lock txq
 
