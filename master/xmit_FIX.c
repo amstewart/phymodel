@@ -1455,7 +1455,7 @@ void ath_tx_aggr_sleep(struct ieee80211_sta *sta, struct ath_softc *sc,
 
 		ath_txq_lock(sc, txq);//locks the queue
 
-		if (!tid->sched) {//if this is not scheduled unlock and exit the function
+		if (!tid->sched) {//if this is not scheduled unlock and exit the current iteration
 			ath_txq_unlock(sc, txq);
 			continue;
 		}
