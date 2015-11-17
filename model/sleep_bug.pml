@@ -1,4 +1,4 @@
-#define p  cs
+#define p  (cs -> !delete)
 #define spin_lock(mutex) \
   do \
   :: 1 -> atomic { \
@@ -25,6 +25,8 @@
 
 bit lock, delete, cs = 0;
 bit sched = 1;
+
+ltl L1 {[]p}
 
 active proctype sleep_tid()	/* can run at any time */
 {
