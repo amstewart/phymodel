@@ -1,3 +1,4 @@
+#define p  cs
 #define spin_lock(mutex) \
   do \
   :: 1 -> atomic { \
