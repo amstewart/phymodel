@@ -36,13 +36,13 @@ end:
     do 
     ::
 	    spin_lock(lock)
-	    cs = 1;
 	    if 
 	    :: sched == 0 -> 
 		spin_unlock(lock);
 	    	skip;
 	    :: else
 	    
+	    cs = 1;
 	    sched = 0;
 	    //assert(delete == 0);
 	    cs = 0;
