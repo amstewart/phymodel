@@ -45,9 +45,9 @@ end:
 	    
 	    sched = 0;
 	    //assert(delete == 0);
+	    cs = 0;
 	    delete = 1;
 	    
-	    cs = 0;
 	    spin_unlock(lock);
 
 	    delete = 0;
