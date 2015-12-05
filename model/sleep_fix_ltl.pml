@@ -57,7 +57,34 @@ end:
     
 }
 
+active proctype cleanup_tid()	/* can run at any time */
+{
+end:
+    do 
+    ::
+	    spin_lock(lock)
+	    if 
+	    :: sched == 0 -> 
+		spin_unlock(lock);
+	    	skip;
+	    :: else
+	    
+	    cs = 1;
+	    sched = 0;
+	    //assert(delete == 0);
+	    cs = 0;
+	    delete = 1;
+	    
+	    spin_unlock(lock);
+
+	    delete = 0;
+	    
+    	    fi
+    od
+    
+}
+
 init {
     run sleep_tid();
-    run sleep_tid();
+    run cleanup_tid();
 }
